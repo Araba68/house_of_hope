@@ -13,9 +13,7 @@ function DonationForm() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(false);
 
-  const paypal = {
-    email: 'priscymaghanga@gmail.com',
-  };
+ 
 
   const bankDetails = {
     bank: 'Equity Bank',
@@ -148,24 +146,10 @@ function DonationForm() {
 
           <hr className="border-yellow-200" />
 
-          <div>
-            <h4 className="font-semibold text-gray-800 text-base md:text-lg">PayPal Details</h4>
-            <p className="text-sm text-gray-600 mt-2">Send your donation via PayPal. Use the <em>Copy</em> button for convenience.</p>
-
-            <div className="mt-4 space-y-2">
-              <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 sm:gap-4">
-                <div className="text-sm text-gray-700 flex-1">
-                  <div><strong>PayPal Email:</strong> <a href="https://www.paypal.me/priscymaghanga" target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:text-blue-800 underline break-all">{paypal.email}</a></div>
-                </div>
-
-                <div className="flex flex-col items-start sm:items-end gap-2 w-full sm:w-auto">
-                  <button type="button" onClick={() => copy(paypal.email)} className="w-full sm:w-auto px-3 py-2 bg-yellow-600 text-white rounded-md text-sm hover:bg-yellow-700 transition font-medium">Copy</button>
-                  <a href="#donate" className="text-sm text-gray-500 hover:text-gray-700">Need help?</a>
-                </div>
               </div>
-            </div>
-          </div>
-        </div>
+            
+          
+       
       )}
 
       {donationType === 'inkind' && (

@@ -1,12 +1,12 @@
 export default function Head() {
-  const siteUrl = "https://example.com"; // update to your production URL
+  const siteUrl = "https://houseofhopechildren.vercel.app"; // update to your production URL
   const jsonLd = {
     "@context": "https://schema.org",
     "@type": "Organization",
     name: "House of Hope",
     url: siteUrl,
     sameAs: [
-      // add social profiles here
+      //https://www.facebook.com/share/1BomfS3GUZ/
     ],
     logo: `${siteUrl}/file.svg`,
   };

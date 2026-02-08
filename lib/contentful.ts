@@ -72,22 +72,56 @@ export type IGalleryImage = Entry<IGalleryImageSkeleton, undefined, string>;
 export type IChild = Entry<IChildSkeleton, undefined, string>;
 export type IBlogPost = Entry<IBlogPostSkeleton, undefined, string>;
 
+// Return types for functions
+type ProgramData = {
+  id: string;
+  title: string;
+  description: string;
+  image: string | null;
+};
+
+type AchievementData = {
+  id: string;
+  title: string;
+  description: string;
+  icon: string;
+};
+
+type ChildData = {
+  id: string;
+  name: string;
+  age: number;
+  bio: string;
+  story?: string;
+  image: string | null;
+};
+
+type BlogPostData = {
+  slug: string;
+  title: string;
+  excerpt: string;
+  content: string;
+  image: string | null;
+  publishedAt: string;
+  author: string;
+};
+
 /**
  * Fetch all programs from Contentful
  */
-export async function getPrograms(): Promise<any[]> {
+export async function getPrograms(): Promise<ProgramData[]> {
   try {
     if (!process.env.NEXT_PUBLIC_CONTENTFUL_SPACE_ID) {
       console.warn('Contentful credentials not set, using static fallback');
       return [];
     }
 
-    const entries = await contentfulClient.getEntries({
+    const entries = await contentfulClient.getEntries<IProgramSkeleton>({
       content_type: 'program',
       order: ['fields.id'],
     });
 
-    return entries.items.map((item: any) => ({
+    return entries.items.map((item) => ({
       id: item.fields.id,
       title: item.fields.title,
       description: item.fields.description,
@@ -104,19 +138,19 @@ export async function getPrograms(): Promise<any[]> {
 /**
  * Fetch all achievements from Contentful
  */
-export async function getAchievements(): Promise<any[]> {
+export async function getAchievements(): Promise<AchievementData[]> {
   try {
     if (!process.env.NEXT_PUBLIC_CONTENTFUL_SPACE_ID) {
       console.warn('Contentful credentials not set, using static fallback');
       return [];
     }
 
-    const entries = await contentfulClient.getEntries({
+    const entries = await contentfulClient.getEntries<IAchievementSkeleton>({
       content_type: 'achievement',
       order: ['fields.id'],
     });
 
-    return entries.items.map((item: any) => ({
+    return entries.items.map((item) => ({
       id: item.fields.id,
       title: item.fields.title,
       description: item.fields.description,
@@ -138,13 +172,13 @@ export async function getGalleryImages(): Promise<string[]> {
       return [];
     }
 
-    const entries = await contentfulClient.getEntries({
+    const entries = await contentfulClient.getEntries<IGalleryImageSkeleton>({
       content_type: 'galleryImage',
       order: ['sys.createdAt'],
       limit: 50,
     });
 
-    return entries.items.map((item: any) => {
+    return entries.items.map((item) => {
       const imageUrl = item.fields.image?.fields?.file?.url;
       return imageUrl ? `https:${imageUrl}` : '';
     }).filter(Boolean);
@@ -157,19 +191,19 @@ export async function getGalleryImages(): Promise<string[]> {
 /**
  * Fetch all children from Contentful
  */
-export async function getChildren(): Promise<any[]> {
+export async function getChildren(): Promise<ChildData[]> {
   try {
     if (!process.env.NEXT_PUBLIC_CONTENTFUL_SPACE_ID) {
       console.warn('Contentful credentials not set, using static fallback');
       return [];
     }
 
-    const entries = await contentfulClient.getEntries({
+    const entries = await contentfulClient.getEntries<IChildSkeleton>({
       content_type: 'child',
       order: ['fields.id'],
     });
 
-    return entries.items.map((item: any) => ({
+    return entries.items.map((item) => ({
       id: item.fields.id,
       name: item.fields.name,
       age: item.fields.age,
@@ -188,13 +222,13 @@ export async function getChildren(): Promise<any[]> {
 /**
  * Fetch a single child by ID from Contentful
  */
-export async function getChildById(id: string): Promise<any | null> {
+export async function getChildById(id: string): Promise<ChildData | null> {
   try {
     if (!process.env.NEXT_PUBLIC_CONTENTFUL_SPACE_ID) {
       return null;
     }
 
-    const entries = await contentfulClient.getEntries({
+    const entries = await contentfulClient.getEntries<IChildSkeleton>({
       content_type: 'child',
       'fields.id': id,
       limit: 1,
@@ -202,7 +236,7 @@ export async function getChildById(id: string): Promise<any | null> {
 
     if (entries.items.length === 0) return null;
 
-    const item = entries.items[0] as any;
+    const item = entries.items[0];
     return {
       id: item.fields.id,
       name: item.fields.name,
@@ -222,19 +256,19 @@ export async function getChildById(id: string): Promise<any | null> {
 /**
  * Fetch blog posts from Contentful
  */
-export async function getBlogPosts(): Promise<any[]> {
+export async function getBlogPosts(): Promise<BlogPostData[]> {
   try {
     if (!process.env.NEXT_PUBLIC_CONTENTFUL_SPACE_ID) {
       return [];
     }
 
-    const entries = await contentfulClient.getEntries({
+    const entries = await contentfulClient.getEntries<IBlogPostSkeleton>({
       content_type: 'blogPost',
       order: ['-fields.publishedAt'],
       limit: 50,
     });
 
-    return entries.items.map((item: any) => ({
+    return entries.items.map((item) => ({
       slug: item.fields.slug,
       title: item.fields.title,
       excerpt: item.fields.excerpt,
@@ -254,13 +288,13 @@ export async function getBlogPosts(): Promise<any[]> {
 /**
  * Fetch a single blog post by slug from Contentful
  */
-export async function getBlogPostBySlug(slug: string): Promise<any | null> {
+export async function getBlogPostBySlug(slug: string): Promise<BlogPostData | null> {
   try {
     if (!process.env.NEXT_PUBLIC_CONTENTFUL_SPACE_ID) {
       return null;
     }
 
-    const entries = await contentfulClient.getEntries({
+    const entries = await contentfulClient.getEntries<IBlogPostSkeleton>({
       content_type: 'blogPost',
       'fields.slug': slug,
       limit: 1,
@@ -268,7 +302,7 @@ export async function getBlogPostBySlug(slug: string): Promise<any | null> {
 
     if (entries.items.length === 0) return null;
 
-    const item = entries.items[0] as any;
+    const item = entries.items[0];
     return {
       slug: item.fields.slug,
       title: item.fields.title,

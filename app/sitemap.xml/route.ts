@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import { kids } from "../../data/kids";
 
 export async function GET() {
-  const baseUrl = process.env.SITE_URL || "https://example.com";
+  const baseUrl = process.env.SITE_URL || "https://houseofhopechildren.vercel.app";
 
   const staticPages = ["/", "/gallery", "/kids"];
 

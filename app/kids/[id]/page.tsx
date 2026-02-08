@@ -4,13 +4,12 @@ import { notFound } from "next/navigation";
 import { getKidById } from "../../../data/kids";
 
 interface Props {
-  params: {
-    id: string;
-  };
+  params: Promise<{ id: string }>;
 }
 
 export async function generateMetadata({ params }: Props) {
-  const kid = getKidById(params.id);
+  const { id } = await params;
+  const kid = getKidById(id);
   if (!kid) return { title: 'Child not found' };
 
   return {
@@ -28,9 +27,14 @@ export async function generateMetadata({ params }: Props) {
   };
 }
 
-export default function KidProfile({ params }: Props) {
-  const kid = getKidById(params.id);
+export default async function KidProfile({ params }: Props) {
+  const { id } = await params;
+  const kid = getKidById(id);
   if (!kid) return notFound();
+
+  // Determine pronoun based on gender
+  const pronoun = kid.gender === 'male' ? 'He' : 'She';
+  const pronounLower = pronoun.toLowerCase();
 
   return (
     <section className="max-w-4xl mx-auto px-6 py-12">
@@ -43,8 +47,8 @@ export default function KidProfile({ params }: Props) {
           <h1 className="text-3xl font-extrabold text-blue-800">{kid.name}</h1>
           <p className="text-gray-600 mt-1">Age {kid.age} • {kid.location}</p>
 
-          <p className="mt-6 text-gray-700 leading-relaxed">{kid.bio} {""}
-            She/he is part of our community and would appreciate your support to access schooling, healthcare, and mentorship programs.
+          <p className="mt-6 text-gray-700 leading-relaxed">
+            {kid.bio} {pronoun} is part of our community and would appreciate your support to access schooling, healthcare, and mentorship programs.
           </p>
 
           <div className="mt-6 flex gap-4">
@@ -52,17 +56,7 @@ export default function KidProfile({ params }: Props) {
 
             <Link href="/kids" className="px-4 py-3 rounded-full border border-gray-200 text-gray-700">Back to list</Link>
           </div>
-
-          <div className="mt-8">
-            <h4 className="text-lg font-semibold text-blue-800">More about {kid.name}</h4>
-            <ul className="mt-2 list-disc list-inside text-gray-600">
-              <li>Hobbies: Drawing, sports, reading</li>
-              <li>Favorite subject: English & Math</li>
-              <li>Wish: To complete school and help others</li>
-            </ul>
-          </div>
         </div>
-
       </div>
     </section>
   );

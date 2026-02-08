@@ -1,4 +1,4 @@
-import { Facebook, Instagram, Mail, Phone, MapPin, Heart } from "lucide-react";
+import { Facebook, Mail, Phone, MapPin, Heart } from "lucide-react";
 import Link from "next/link";
 
 export default function Footer() {
@@ -83,18 +83,30 @@ export default function Footer() {
 
           {/* Socials */}
           <div className="mt-4 md:mt-6 flex gap-4">
-            <a href="https://www.facebook.com/houseofhope" target="_blank" rel="noopener noreferrer" aria-label="House of Hope Facebook" className="hover:text-yellow-400 transition">
+            <a href="https://www.facebook.com/share/1BomfS3GUZ/" target="_blank" rel="noopener noreferrer" aria-label="House of Hope Facebook" className="hover:text-yellow-400 transition">
               <Facebook size={20} className="md:w-6 md:h-6" />
-            </a>
-            <a href="https://www.instagram.com/houseofhope" target="_blank" rel="noopener noreferrer" aria-label="House of Hope Instagram" className="hover:text-yellow-400 transition">
-              <Instagram size={20} className="md:w-6 md:h-6" />
             </a>
           </div>
         </section>
       </div>
 
-      <div className="mt-8 md:mt-12 border-t border-gray-700 pt-4 md:pt-6 text-center text-xs text-gray-500">
-        © {new Date().getFullYear()} House of Hope Children’s Home. All rights reserved.
+      <div className="mt-8 md:mt-12 border-t border-gray-700 pt-4 md:pt-6 text-center">
+        <p className="text-xs text-gray-500">
+          © {new Date().getFullYear()} House of Hope Children&apos;s Home. All rights reserved.
+        </p>
+        
+        {/* Built by TechIT Eazy */}
+        <p className="text-xs text-gray-500 mt-2 flex items-center justify-center gap-1">
+          Built with <Heart size={12} className="text-red-500 inline" fill="currentColor" /> by{" "}
+          <a 
+            href="https://techit-eazy-svpi.vercel.app/" 
+            target="_blank" 
+            rel="noopener noreferrer"
+            className="text-yellow-400 hover:text-yellow-300 transition font-medium"
+          >
+            TechIT Eazy
+          </a>
+        </p>
       </div>
     </footer>
   );
