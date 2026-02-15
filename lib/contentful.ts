@@ -104,6 +104,7 @@ type BlogPostData = {
   image: string | null;
   publishedAt: string;
   author: string;
+  
 };
 
 // Helper function to extract image URL from Asset
@@ -280,6 +281,7 @@ export async function getBlogPosts(): Promise<BlogPostData[]> {
       image: getImageUrl(item.fields.image),
       publishedAt: item.fields.publishedAt,
       author: item.fields.author,
+      
     }));
   } catch (error) {
     console.error('Error fetching blog posts from Contentful:', error);

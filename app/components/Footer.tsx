@@ -10,7 +10,7 @@ export default function Footer() {
         <section>
           <h3 className="text-xl md:text-2xl font-bold text-white mb-3 md:mb-4">House of Hope</h3>
           <p className="text-xs md:text-sm leading-relaxed">
-            A nurturing home for vulnerable children — providing love, education,
+            A nurturing community for vulnerable children — providing love, education,
             shelter, and hope for a brighter future.
           </p>
 

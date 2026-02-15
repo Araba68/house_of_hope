@@ -75,7 +75,8 @@ export const metadata = {
 // JSON-LD Structured Data for Organization
 const organizationSchema = {
   "@context": "https://schema.org",
-  "@type": "NGO",
+  "@type": "Organization",
+  "additionalType": "NGO",
   name: "House of Hope Children's Home",
   url: siteUrl,
   logo: `${siteUrl}/logo.svg`,
@@ -95,8 +96,8 @@ const organizationSchema = {
     contactType: "Customer Service",
   },
   sameAs: [
-    "https://www.facebook.com/houseofhope",
-    "https://www.instagram.com/houseofhope",
+    "https://www.facebook.com/share/1BomfS3GUZ/",
+    
   ],
   founder: { "@type": "Person", name: "Miss Susan William" },
 };
