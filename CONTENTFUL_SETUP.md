@@ -195,6 +195,17 @@ After setting up your content models in Contentful:
 4. Click **Publish** to make content live
 5. Your Next.js app will automatically fetch the published content
 
+### Immediate Content Refresh
+
+Set `CONTENTFUL_REVALIDATE_SECRET` in Vercel and configure a Contentful webhook:
+
+- **URL:** `https://houseofhope.africa/api/revalidate?secret=YOUR_SECRET`
+- **Method:** `POST`
+- **Triggers:** Publish, Unpublish, and Delete
+- **Content types:** `Blog post`
+
+The `/blog` and `/blog/[slug]` routes also run dynamically, so no redeployment is required for newly published posts.
+
 ## Troubleshooting
 
 ### Content not appearing?
