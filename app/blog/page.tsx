@@ -3,6 +3,14 @@ import Link from 'next/link';
 
 export const dynamic = 'force-dynamic';
 
+function getUrlSlug(slug: string): string {
+  return slug
+    .trim()
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/^-+|-+$/g, '');
+}
+
 export default async function BlogPage() {
   const posts = await getBlogPosts();
 
@@ -17,7 +25,7 @@ export default async function BlogPage() {
       {posts.map((post) => (
         <div key={post.slug} className="mb-12 border-b pb-6">
           <h2 className="text-2xl font-semibold mb-2">
-            <Link href={`/blog/${post.slug}`}>
+            <Link href={`/blog/${getUrlSlug(post.slug)}`}>
               {post.title}
             </Link>
           </h2>
@@ -29,7 +37,7 @@ export default async function BlogPage() {
           <p className="text-gray-700">{post.excerpt}</p>
 
           <Link
-            href={`/blog/${post.slug}`}
+            href={`/blog/${getUrlSlug(post.slug)}`}
             className="text-blue-600 mt-2 inline-block"
           >
             Read more →

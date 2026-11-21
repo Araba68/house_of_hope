@@ -1,6 +1,14 @@
-import { getBlogPostBySlug } from "@/lib/contentful";
+import { getBlogPosts } from "@/lib/contentful";
 
 export const dynamic = 'force-dynamic';
+
+function getUrlSlug(slug: string): string {
+  return slug
+    .trim()
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/^-+|-+$/g, '');
+}
 
 export default async function BlogPostPage({
   params,
@@ -9,7 +17,8 @@ export default async function BlogPostPage({
 }) {
   const { slug } = await params;
 
-  const post = await getBlogPostBySlug(slug);
+  const posts = await getBlogPosts();
+  const post = posts.find((item) => getUrlSlug(item.slug) === getUrlSlug(slug));
 
   if (!post) {
     return <div className="pt-24 text-center">Post not found</div>;
