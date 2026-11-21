@@ -1,14 +1,21 @@
-import { createClient, type EntryFieldTypes, type Entry, type EntrySkeletonType, type Asset } from 'contentful';
+import { createClient, type EntryFieldTypes, type Entry, type EntrySkeletonType } from 'contentful';
+import type { ProgramData } from './programs-data';
 
 /**
  * Initialize Contentful client
  * Make sure to set NEXT_PUBLIC_CONTENTFUL_SPACE_ID and NEXT_PUBLIC_CONTENTFUL_ACCESS_TOKEN in .env.local
  */
-const contentfulClient = createClient({
-  space: process.env.NEXT_PUBLIC_CONTENTFUL_SPACE_ID || '',
-  accessToken: process.env.NEXT_PUBLIC_CONTENTFUL_ACCESS_TOKEN || '',
-  host: 'cdn.contentful.com',
-});
+const contentfulClient = process.env.NEXT_PUBLIC_CONTENTFUL_SPACE_ID && process.env.NEXT_PUBLIC_CONTENTFUL_ACCESS_TOKEN
+  ? createClient({
+      space: process.env.NEXT_PUBLIC_CONTENTFUL_SPACE_ID,
+      accessToken: process.env.NEXT_PUBLIC_CONTENTFUL_ACCESS_TOKEN,
+      host: 'cdn.contentful.com',
+    })
+  : null;
+
+function hasContentfulClient() {
+  return Boolean(contentfulClient);
+}
 
 // Define entry skeletons
 export interface IProgramSkeleton extends EntrySkeletonType {
@@ -73,13 +80,6 @@ export type IChild = Entry<IChildSkeleton, undefined, string>;
 export type IBlogPost = Entry<IBlogPostSkeleton, undefined, string>;
 
 // Return types for functions
-type ProgramData = {
-  id: string;
-  title: string;
-  description: string;
-  image: string | null;
-};
-
 type AchievementData = {
   id: string;
   title: string;
@@ -104,8 +104,38 @@ type BlogPostData = {
   image: string | null;
   publishedAt: string;
   author: string;
-  
 };
+
+const excludedKidIds = new Set([
+  'ricky',
+  'rina',
+  'rinah',
+  'rinah-mutheu',
+  'mary',
+  'mary-kadzo',
+  'ruth',
+  'ruth-kasyoka',
+  'linah',
+  'linah-mueni',
+  'linet',
+  'linet-mueni',
+]);
+
+function isExcludedKid(id: string, name: string): boolean {
+  const normalizedId = id.trim().toLowerCase();
+  const normalizedName = name.trim().toLowerCase();
+
+  return (
+    excludedKidIds.has(normalizedId) ||
+    normalizedName === 'ricky' ||
+    normalizedName.startsWith('rina') ||
+    normalizedName.startsWith('mary ') ||
+    normalizedName === 'mary' ||
+    normalizedName.startsWith('ruth kasyoka') ||
+    normalizedName.startsWith('linah ') ||
+    normalizedName.startsWith('linet ')
+  );
+}
 
 // Helper function to extract image URL from Asset
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -123,12 +153,12 @@ function getImageUrl(asset: any): string | null {
  */
 export async function getPrograms(): Promise<ProgramData[]> {
   try {
-    if (!process.env.NEXT_PUBLIC_CONTENTFUL_SPACE_ID) {
+    if (!hasContentfulClient()) {
       console.warn('Contentful credentials not set, using static fallback');
       return [];
     }
 
-    const entries = await contentfulClient.getEntries<IProgramSkeleton>({
+    const entries = await contentfulClient!.getEntries<IProgramSkeleton>({
       content_type: 'program',
       order: ['fields.id'],
     });
@@ -137,7 +167,7 @@ export async function getPrograms(): Promise<ProgramData[]> {
       id: item.fields.id,
       title: item.fields.title,
       description: item.fields.description,
-      image: getImageUrl(item.fields.image),
+      image: getImageUrl(item.fields.image) ?? '',
     }));
   } catch (error) {
     console.error('Error fetching programs from Contentful:', error);
@@ -146,16 +176,47 @@ export async function getPrograms(): Promise<ProgramData[]> {
 }
 
 /**
+ * Fetch a single program by ID from Contentful
+ */
+export async function getProgramById(id: string): Promise<ProgramData | null> {
+  try {
+    if (!hasContentfulClient()) {
+      return null;
+    }
+
+    const entries = await contentfulClient!.getEntries<IProgramSkeleton>({
+      content_type: 'program',
+      'fields.id': id,
+      limit: 1,
+    });
+
+    if (entries.items.length === 0) return null;
+
+    const item = entries.items[0];
+
+    return {
+      id: item.fields.id,
+      title: item.fields.title,
+      description: item.fields.description,
+      image: getImageUrl(item.fields.image) ?? '',
+    };
+  } catch (error) {
+    console.error('Error fetching program from Contentful:', error);
+    return null;
+  }
+}
+
+/**
  * Fetch all achievements from Contentful
  */
 export async function getAchievements(): Promise<AchievementData[]> {
   try {
-    if (!process.env.NEXT_PUBLIC_CONTENTFUL_SPACE_ID) {
+    if (!hasContentfulClient()) {
       console.warn('Contentful credentials not set, using static fallback');
       return [];
     }
 
-    const entries = await contentfulClient.getEntries<IAchievementSkeleton>({
+    const entries = await contentfulClient!.getEntries<IAchievementSkeleton>({
       content_type: 'achievement',
       order: ['fields.id'],
     });
@@ -177,12 +238,12 @@ export async function getAchievements(): Promise<AchievementData[]> {
  */
 export async function getGalleryImages(): Promise<string[]> {
   try {
-    if (!process.env.NEXT_PUBLIC_CONTENTFUL_SPACE_ID) {
+    if (!hasContentfulClient()) {
       console.warn('Contentful credentials not set, using static fallback');
       return [];
     }
 
-    const entries = await contentfulClient.getEntries<IGalleryImageSkeleton>({
+    const entries = await contentfulClient!.getEntries<IGalleryImageSkeleton>({
       content_type: 'galleryImage',
       order: ['sys.createdAt'],
       limit: 50,
@@ -202,24 +263,26 @@ export async function getGalleryImages(): Promise<string[]> {
  */
 export async function getChildren(): Promise<ChildData[]> {
   try {
-    if (!process.env.NEXT_PUBLIC_CONTENTFUL_SPACE_ID) {
+    if (!hasContentfulClient()) {
       console.warn('Contentful credentials not set, using static fallback');
       return [];
     }
 
-    const entries = await contentfulClient.getEntries<IChildSkeleton>({
+    const entries = await contentfulClient!.getEntries<IChildSkeleton>({
       content_type: 'child',
       order: ['fields.id'],
     });
 
-    return entries.items.map((item) => ({
-      id: item.fields.id,
-      name: item.fields.name,
-      age: item.fields.age,
-      bio: item.fields.bio,
-      story: item.fields.story,
-      image: getImageUrl(item.fields.image),
-    }));
+    return entries.items
+      .filter((item) => !isExcludedKid(item.fields.id, item.fields.name))
+      .map((item) => ({
+        id: item.fields.id,
+        name: item.fields.name,
+        age: item.fields.age,
+        bio: item.fields.bio,
+        story: item.fields.story,
+        image: getImageUrl(item.fields.image),
+      }));
   } catch (error) {
     console.error('Error fetching children from Contentful:', error);
     return [];
@@ -231,11 +294,11 @@ export async function getChildren(): Promise<ChildData[]> {
  */
 export async function getChildById(id: string): Promise<ChildData | null> {
   try {
-    if (!process.env.NEXT_PUBLIC_CONTENTFUL_SPACE_ID) {
+    if (!hasContentfulClient()) {
       return null;
     }
 
-    const entries = await contentfulClient.getEntries<IChildSkeleton>({
+    const entries = await contentfulClient!.getEntries<IChildSkeleton>({
       content_type: 'child',
       'fields.id': id,
       limit: 1,
@@ -244,6 +307,8 @@ export async function getChildById(id: string): Promise<ChildData | null> {
     if (entries.items.length === 0) return null;
 
     const item = entries.items[0];
+    if (isExcludedKid(item.fields.id, item.fields.name)) return null;
+
     return {
       id: item.fields.id,
       name: item.fields.name,
@@ -263,11 +328,11 @@ export async function getChildById(id: string): Promise<ChildData | null> {
  */
 export async function getBlogPosts(): Promise<BlogPostData[]> {
   try {
-    if (!process.env.NEXT_PUBLIC_CONTENTFUL_SPACE_ID) {
+    if (!hasContentfulClient()) {
       return [];
     }
 
-    const entries = await contentfulClient.getEntries<IBlogPostSkeleton>({
+    const entries = await contentfulClient!.getEntries<IBlogPostSkeleton>({
       content_type: 'blogPost',
       order: ['-fields.publishedAt'],
       limit: 50,
@@ -281,7 +346,6 @@ export async function getBlogPosts(): Promise<BlogPostData[]> {
       image: getImageUrl(item.fields.image),
       publishedAt: item.fields.publishedAt,
       author: item.fields.author,
-      
     }));
   } catch (error) {
     console.error('Error fetching blog posts from Contentful:', error);
@@ -294,11 +358,11 @@ export async function getBlogPosts(): Promise<BlogPostData[]> {
  */
 export async function getBlogPostBySlug(slug: string): Promise<BlogPostData | null> {
   try {
-    if (!process.env.NEXT_PUBLIC_CONTENTFUL_SPACE_ID) {
+    if (!hasContentfulClient()) {
       return null;
     }
 
-    const entries = await contentfulClient.getEntries<IBlogPostSkeleton>({
+    const entries = await contentfulClient!.getEntries<IBlogPostSkeleton>({
       content_type: 'blogPost',
       'fields.slug': slug,
       limit: 1,
